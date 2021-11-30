@@ -1,0 +1,7 @@
+{
+  "name": "interaz",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
