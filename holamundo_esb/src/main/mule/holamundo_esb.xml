@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<http:listener-config name="HTTP_test" doc:name="HTTP Listener config" doc:id="fc08a41e-958c-40bb-8245-2494b4b6f984" >
+		<http:listener-connection host="localhost" port="8000"/>
+		<http:listener-interceptors >
+			<http:cors-interceptor >
+				<http:origins >
+					<http:public-resource />
+				</http:origins>
+			</http:cors-interceptor>
+		</http:listener-interceptors>
+	</http:listener-config>
+	<flow name="holamundo_esbFlow" doc:id="d48e780d-d684-4c62-808b-f3a786f1efcd" >
+		<http:listener doc:name="Listener" doc:id="24ae19b4-4b2a-4a5b-8191-8e3630bbebc2" config-ref="HTTP_test" path="/transferencia/{cedulaE}/{cedulaR}/{cantidad}/{bancoE}/{bancoR}"/>
+		<ee:transform doc:name="Transform Message" doc:id="5a9f35eb-b8e4-445e-a827-c3016481523c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "cedulaE": attributes.uriParams.'cedulaE',
+    "cedulaR": attributes.uriParams.'cedulaR',
+    "cantidad": attributes.uriParams.'cantidad',
+    "bancoE": attributes.uriParams.'bancoE',
+    "bancoR": attributes.uriParams.'bancoR',
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable doc:name="Set Variable" doc:id="a0f774ca-0abd-4660-8d01-63b4e3b48c71" variableName="banco_ident" value="#[payload]"/>
+		<choice doc:name="Choice" doc:id="99caaa0d-8a33-4e79-8c80-730202892183" >
+			<when expression='#[vars.banco_ident.bancoE == "1"]'>
+				<http:request method="PUT" doc:name="Request" doc:id="69508b66-bac3-4d1f-9daa-4033ae5a49e4" url='#["http://localhost:600/retirar/" ++ vars.banco_ident.cedulaE ++ "/" ++ vars.banco_ident.cantidad]'>
+		</http:request>
+				<http:request method="PUT" doc:name="Request" doc:id="4d008576-b5d2-4758-a0cb-28fa050af761" url='#["http://localhost:5000/depositar/" ++ vars.banco_ident.cedulaR ++ "/" ++ vars.banco_ident.cantidad]'/>
+			</when>
+			<otherwise>
+				<http:request method="PUT" doc:name="Request" doc:id="fd499bb8-a751-42ac-ae32-aabb3116ac02" url='#["http://localhost:5000/retirar/" ++ vars.banco_ident.cedulaE ++ "/" ++ vars.banco_ident.cantidad]'/>
+				<http:request method="PUT" doc:name="Request" doc:id="187017ee-97ea-4170-90bc-f256c22de638" url='#["http://localhost:600/depositar/" ++ vars.banco_ident.cedulaR ++ "/" ++ vars.banco_ident.cantidad]'/>
+				<logger level="INFO" doc:name="Logger" doc:id="0a9ef98e-52c5-4121-83c2-b79247ece20e" message="entro aqui pt" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

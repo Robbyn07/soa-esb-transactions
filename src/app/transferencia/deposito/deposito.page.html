@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Transferencia de deposito</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button ></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-item>
+    <ion-label>Banco</ion-label>
+    <ion-select [(ngModel)]="bancoS" placeholder="Entidad Bancaria ">
+      <ion-select-option value="bA">Banco del Austro </ion-select-option>
+      <ion-select-option value="bP">Banco del Pacifico</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label  >Cédula Envia</ion-label>
+    <ion-input [(ngModel)]="cedulaE"   placeholder=" cédula " ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label  >Cédula Recibe</ion-label>
+    <ion-input [(ngModel)]="cedulaR"   placeholder=" cédula " ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Cantidad</ion-label>
+    <ion-input [(ngModel)]="cantidad" placeholder=" deposito "></ion-input>
+  </ion-item>
+
+  <ion-button (click)="transferencia()" >
+    Enviar
+  </ion-button>
+
+  <ion-button [routerLink]="['/transferencia']" >
+    Cancelar
+  </ion-button>
+
+</ion-content>
